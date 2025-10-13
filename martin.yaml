@@ -6,8 +6,7 @@ default_srid: 4269
 max_feature_count: 500
 postgres:
   auto_bounds: quick
-  sslmode: disable
-  connection_string: ${DATABASE_URL}
+  connection_string: ${DATABASE_URL}?sslmodel=disable
   functions:
     # layer with a series of stands, given a treatment_plan_id
     # parameters:
