@@ -21,5 +21,8 @@ deploy: build push
 run:
 	docker compose up
 
+shell:
+	./bin/run.sh bash
+
 get-tag:
 	echo $(VERSION)
