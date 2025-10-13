@@ -5,6 +5,8 @@ preferred_encoding: gzip
 default_srid: 4269
 max_feature_count: 500
 postgres:
+  auto_bounds: quick
+  sslmode: disable
   connection_string: ${DATABASE_URL}
   functions:
     # layer with a series of stands, given a treatment_plan_id
