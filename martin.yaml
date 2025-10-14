@@ -4,7 +4,7 @@ worker_processes: 8
 preferred_encoding: gzip
 default_srid: 4269
 max_feature_count: 500
-cors: false
+cors: true
 postgres:
   auto_bounds: quick
   connection_string: ${DATABASE_URL}?sslmode=disable
