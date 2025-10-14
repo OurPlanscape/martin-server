@@ -15,8 +15,10 @@ build:
 push:
 	gcloud builds submit --tag $(DOCKER_TAG)
 
-deploy: build push
+deploy:
 	gcloud run deploy $(APP) --image $(DOCKER_TAG) --platform managed --region $(REGION)
+
+build-deploy: build push deploy
 
 run:
 	docker compose up

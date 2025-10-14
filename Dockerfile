@@ -1,6 +1,7 @@
 FROM python:3.14.0-slim-trixie
 
 ENV MARTIN_URL=https://github.com/maplibre/martin/releases/download/martin-v0.19.3/martin-x86_64-unknown-linux-gnu.tar.gz
+ENV CLOUDSQL_AUTH_URL=https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.18.2/cloud-sql-proxy.linux.amd64
 ENV PYTHONUNBUFFERED True
 ENV DEBIAN_FRONTEND=noninteractive
 
