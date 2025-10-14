@@ -44,4 +44,4 @@ jobs:
             && (github.event.release.prerelease && 'staging' || 'production')
             || 'dev' }}
         run: |
-          make deploy ENV=$ENV
+          make build-deploy ENV=$ENV
