@@ -1,3 +1,4 @@
+cache: disable
 listen_addresses: "0.0.0.0:3000"
 base_path: /tiles
 worker_processes: 8
