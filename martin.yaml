@@ -70,7 +70,7 @@ postgres:
       minzoom: 0
       maxzoom: 20
       bounds: [-180.0, -90.0, 180.0, 90.0]
-      id_column: string
+      id_column: uuid
     # layer with planning area geometry.
     # parameters:
     # - id: int
@@ -90,7 +90,7 @@ postgres:
       minzoom: 0
       maxzoom: 20
       bounds: [-180.0, -90.0, 180.0, 90.0]
-      id_column: string
+      id_column: uuid
     # Layer with Scenario's Treatable Area geometry.
     # parameters:
     # - id: int
