@@ -8,6 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     curl \
     wget \
+    postgresql-client \
     openssh-client \
     libcurl4-openssl-dev \
     libssl-dev \
@@ -24,6 +25,10 @@ RUN mkdir -p /martin && \
     tar -xvf /martin/martin.tar.gz -C /martin
 
 COPY martin.yaml /martin/martin.yaml
+COPY sql /martin/sql
+COPY bin/install-sql.sh /martin/install-sql.sh
+
+RUN chmod +x /martin/install-sql.sh
 
 EXPOSE 3000
 CMD ["/martin/martin", "--config", "/martin/martin.yaml"]

@@ -1,4 +1,4 @@
-.PHONY: build deploy test
+.PHONY: build deploy install-sql test
 
 PROJECT=planscape-23d66
 APP_NAME=martin
@@ -33,7 +33,13 @@ push:
 deploy:
 	gcloud run deploy $(APP) --image $(DOCKER_TAG) --platform managed --region $(REGION)
 
+install-sql:
+	gcloud run jobs update $(APP)-sql-installer --image $(DOCKER_TAG) --region $(REGION)
+	gcloud run jobs execute $(APP)-sql-installer --region $(REGION) --wait
+
 build-deploy: build push deploy
+
+build-install-sql-deploy: build push install-sql deploy
 
 run:
 	docker compose up
