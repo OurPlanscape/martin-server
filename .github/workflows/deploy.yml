@@ -44,7 +44,7 @@ jobs:
             && (github.event.release.prerelease && 'staging' || 'production')
             || 'dev' }}
         run: |
-          make build-deploy ENV=$ENV
+          make build-install-sql-deploy ENV=$ENV
 
   notify:
     runs-on: ubuntu-latest
