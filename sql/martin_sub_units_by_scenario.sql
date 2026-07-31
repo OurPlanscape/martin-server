@@ -40,6 +40,7 @@ DECLARE
     p_max_number_of_features integer;
     p_planning_area_id integer;
     p_planning_area_geom geometry;
+    p_parent_scenario_id integer;
     p_layer_id integer;
     p_dyn_table text;
     tile bytea;
@@ -53,8 +54,8 @@ BEGIN
         RAISE EXCEPTION 'Scenario ID is required';
     END IF;
 
-    SELECT result_status, planning_approach, planning_area_id
-        INTO p_scenario_result_status, p_planning_approach, p_planning_area_id
+    SELECT result_status, planning_approach, planning_area_id, parent_id
+        INTO p_scenario_result_status, p_planning_approach, p_planning_area_id, p_parent_scenario_id
     FROM planning_scenario sc
     WHERE sc.id = p_scenario_id;
 
@@ -91,9 +92,12 @@ BEGIN
 
     WITH subunits AS (
         SELECT * 
-        FROM private_sub_units_by_polygon(p_planning_area_geom, p_dyn_table)
+        FROM private_sub_units_by_polygon(
+            CASE WHEN p_parent_scenario_id IS NULL THEN p_planning_area_geom ELSE NULL END,
+            CASE WHEN p_parent_scenario_id IS NULL THEN p_dyn_table ELSE NULL END
+        )
     ),
-    project_area AS (
+    scenario_project_area AS (
         SELECT
             pa.id AS "pa_id",
             pa.scenario_id AS "scenario_id",
@@ -108,7 +112,34 @@ BEGIN
         WHERE 
             pa.deleted_at is NULL AND
             pa.scenario_id = p_scenario_id AND
+            p_parent_scenario_id IS NULL AND
             (pa.data->>'treatment_rank')::int <= p_max_number_of_features
+    ),
+    parent_project_area AS (
+        SELECT
+            pa.id AS "pa_id",
+            pa.scenario_id AS "scenario_id",
+            pa.name,
+            (COALESCE(pa.data, '{}'::jsonb) ->> 'treatment_rank')::int AS "rank",
+            (COALESCE(pa.data, '{}'::jsonb) ->> 'proj_id')::int AS "proj_id",
+            ST_Transform(
+                ST_Intersection(parent_pa.geometry, p_planning_area_geom), 3857
+            ) AS geom
+        FROM planning_projectarea pa
+        INNER JOIN planning_projectarea parent_pa
+            ON parent_pa.id = (pa.data->>'proj_id')::int
+            AND parent_pa.scenario_id = p_parent_scenario_id
+            AND parent_pa.deleted_at IS NULL
+        WHERE
+            pa.deleted_at IS NULL AND
+            pa.scenario_id = p_scenario_id AND
+            p_parent_scenario_id IS NOT NULL AND
+            (pa.data->>'treatment_rank')::int <= p_max_number_of_features
+    ),
+    project_area AS (
+        SELECT * FROM scenario_project_area
+        UNION ALL
+        SELECT * FROM parent_project_area
     ),
     mvtgeom AS (
         SELECT
