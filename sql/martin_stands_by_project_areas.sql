@@ -9,7 +9,6 @@ DECLARE
     p_mvt bytea;
     p_scenario_id integer := (query_params->>'scenario_id')::int;
     p_stand_size varchar;
-    p_scenario_type varchar;
 BEGIN
 
     IF p_scenario_id IS NULL THEN
@@ -17,11 +16,9 @@ BEGIN
     END IF;
 
     SELECT
-        scenario.configuration->>'stand_size',
-        scenario.type
+        scenario.configuration->>'stand_size'
     INTO
-        p_stand_size,
-        p_scenario_type
+        p_stand_size
     FROM planning_scenario scenario
     WHERE
         scenario.id = p_scenario_id
@@ -29,10 +26,6 @@ BEGIN
 
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Could not find Scenario';
-    END IF;
-
-    IF p_scenario_type IS DISTINCT FROM 'PROJECT_AREAS' THEN
-        RAISE EXCEPTION 'Scenario type must be PROJECT_AREAS';
     END IF;
 
     IF p_stand_size IS NULL THEN
