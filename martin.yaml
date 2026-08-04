@@ -123,6 +123,17 @@ postgres:
       maxzoom: 20
       bounds: [-180.0, -90.0, 180.0, 90.0]
       id_column: id
+    # Returns stands inside Project Areas for a Scenario.
+    # parameters:
+    # - scenario_id: int
+    # - project_area_id: Optional[int]
+    stands_by_project_areas:
+      schema: public
+      function: martin_stands_by_project_areas
+      minzoom: 0
+      maxzoom: 20
+      bounds: [-180.0, -90.0, 180.0, 90.0]
+      id_column: id
     # layer with ranked sub-units. This layer shows the sub-units
     # areas ranked by ForSys algorithm.
     # parameters:
