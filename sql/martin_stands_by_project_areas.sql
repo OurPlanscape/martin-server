@@ -8,7 +8,6 @@ RETURNS bytea AS $$
 DECLARE
     p_mvt bytea;
     p_scenario_id integer := (query_params->>'scenario_id')::int;
-    p_project_area_scenario_id integer;
     p_stand_size varchar;
 BEGIN
 
@@ -17,11 +16,9 @@ BEGIN
     END IF;
 
     SELECT
-        scenario.configuration->>'stand_size',
-        COALESCE(scenario.parent_id, scenario.id)
+        scenario.configuration->>'stand_size'
     INTO
-        p_stand_size,
-        p_project_area_scenario_id
+        p_stand_size
     FROM planning_scenario scenario
     WHERE
         scenario.id = p_scenario_id
@@ -42,7 +39,7 @@ BEGIN
             pa.geometry
         FROM planning_projectarea pa
         WHERE
-            pa.scenario_id = p_project_area_scenario_id
+            pa.scenario_id = p_scenario_id
             AND pa.deleted_at IS NULL
             AND (
                 (query_params->>'project_area_id') IS NULL

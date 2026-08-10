@@ -1,48 +1,61 @@
-CREATE OR REPLACE FUNCTION martin_project_areas_by_scenario(z integer, x integer, y integer, query_params json)
+CREATE OR REPLACE FUNCTION martin_project_areas_by_scenario(
+    z integer,
+    x integer,
+    y integer,
+    query_params json
+)
 RETURNS bytea AS $$
 DECLARE
-  p_mvt bytea;
-  p_scenario_id integer;
-  p_scenario_result_status varchar;
-  p_planning_approach varchar;
-  p_max_number_of_features integer;
+    p_mvt bytea;
+    p_parent_scenario_id integer;
+    p_scenario_id integer;
+    p_scenario_result_status varchar;
+    p_planning_approach varchar;
+    p_max_number_of_features integer;
 BEGIN
 
-  SELECT INTO 
-    p_scenario_id
-    (query_params->>'scenario_id')::int;
+    SELECT INTO
+        p_scenario_id
+        (query_params->>'scenario_id')::int;
 
-  IF p_scenario_id IS NULL THEN
-    RAISE EXCEPTION 'Scenario ID is required';
-  END IF;
-
-  SELECT INTO 
-    p_scenario_result_status
-    result_status FROM planning_scenario sc
-    WHERE sc.id = p_scenario_id;
-
-  IF p_scenario_result_status != 'SUCCESS' THEN
-    RAISE EXCEPTION 'Scenario result status must be SUCCESS';
-  END IF;
-
-  SELECT INTO
-    p_planning_approach
-    planning_approach FROM planning_scenario sc
-    WHERE sc.id = p_scenario_id;
-
-  SELECT INTO
-    p_max_number_of_features
-    (query_params->>'number_of_features')::int;
-
-  IF p_max_number_of_features IS NULL THEN
-    IF p_planning_approach = 'PRIORITIZE_SUB_UNITS' THEN
-      SELECT INTO
-        p_max_number_of_features 10;
-    ELSE  
-      SELECT INTO
-        p_max_number_of_features 9999;
+    IF p_scenario_id IS NULL THEN
+        RAISE EXCEPTION 'Scenario ID is required';
     END IF;
-  END IF;
+
+    SELECT
+        result_status,
+        planning_approach,
+        parent_id
+    INTO
+        p_scenario_result_status,
+        p_planning_approach,
+        p_parent_scenario_id
+    FROM planning_scenario sc
+    WHERE sc.id = p_scenario_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Could not find Scenario';
+    END IF;
+
+    IF p_scenario_result_status IS DISTINCT FROM 'SUCCESS'
+       AND p_parent_scenario_id IS NULL THEN
+        RAISE EXCEPTION 'Scenario result status must be SUCCESS';
+    END IF;
+
+    SELECT INTO
+        p_max_number_of_features
+        (query_params->>'number_of_features')::int;
+
+    IF p_max_number_of_features IS NULL THEN
+        IF p_parent_scenario_id IS NOT NULL
+          AND p_scenario_result_status IS DISTINCT FROM 'SUCCESS' THEN
+            SELECT INTO p_max_number_of_features 9999;
+        ELSIF p_planning_approach = 'PRIORITIZE_SUB_UNITS' THEN
+            SELECT INTO p_max_number_of_features 10;
+        ELSE
+            SELECT INTO p_max_number_of_features 9999;
+        END IF;
+    END IF;
 
   WITH base AS (
     SELECT
@@ -54,7 +67,7 @@ BEGIN
     FROM planning_projectarea pa
     WHERE 
         pa.deleted_at is NULL AND
-        pa.scenario_id = (query_params->>'scenario_id')::int AND
+        pa.scenario_id = p_scenario_id AND
         pa.geometry && ST_Transform(ST_TileEnvelope(z, x, y, margin => (64.0 / 4096)), 4269)
   ), mvtpoly AS (
     SELECT
