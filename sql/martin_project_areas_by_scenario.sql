@@ -37,11 +37,6 @@ BEGIN
         RAISE EXCEPTION 'Could not find Scenario';
     END IF;
 
-    IF p_scenario_result_status IS DISTINCT FROM 'SUCCESS'
-       AND p_parent_scenario_id IS NULL THEN
-        RAISE EXCEPTION 'Scenario result status must be SUCCESS';
-    END IF;
-
     SELECT INTO
         p_max_number_of_features
         (query_params->>'number_of_features')::int;
