@@ -17,7 +17,7 @@ on **docker**.
 The deploy command will deploy this to GCP. You can manually deploy from
 your local environment with:
 
-* `make deploy ENV=<target_env>` where `target_env` can be dev, staging or production. The default is dev.
+* `make build-deploy ENV=<target_env>` where `target_env` can be dev, staging or production. The default is dev.
 
 Github actions handles the deployment as well as follows:
 
