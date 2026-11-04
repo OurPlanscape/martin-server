@@ -123,6 +123,17 @@ postgres:
       maxzoom: 20
       bounds: [-180.0, -90.0, 180.0, 90.0]
       id_column: id
+    # Returns stands saved in a Scenario's ForSys inputs.
+    # Includes both optimized and non-optimized input stands.
+    # parameters:
+    # - scenario_id: int
+    treatable_stands_by_scenario:
+      schema: public
+      function: martin_treatable_stands_by_scenario
+      minzoom: 0
+      maxzoom: 20
+      bounds: [-180.0, -90.0, 180.0, 90.0]
+      id_column: id
     # Returns stands inside Project Areas for a Scenario.
     # parameters:
     # - scenario_id: int
