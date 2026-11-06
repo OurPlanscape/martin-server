@@ -16,13 +16,11 @@ BEGIN
     WITH scenario_input AS (
         SELECT
             scenario.configuration->>'stand_size' AS stand_size,
-            scenario.forsys_input->'stand_ids' AS stand_ids
+            scenario.forsys_input->'eligible_stand_ids' AS stand_ids
         FROM planning_scenario scenario
         WHERE scenario.id = p_scenario_id
           AND scenario.deleted_at IS NULL
-          AND scenario.result_status IN (
-              'SUCCESS', 'FAILURE', 'PANIC', 'TIMED_OUT'
-          )
+          AND scenario.result_status = 'SUCCESS'
     ),
     input_stand_ids AS (
         SELECT DISTINCT
